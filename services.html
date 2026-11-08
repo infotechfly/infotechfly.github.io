@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <script async
+      src="https://www.googletagmanager.com/gtag/js?id=G-BWQW6Z6Z4K"></script>
+    <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-BWQW6Z6Z4K');
+</script>
+    <meta name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Services | Info Tech Fly</title>
+    <meta name="description"
+      content="Static websites, dynamic websites, WordPress, apps, hosting and security from Info Tech Fly.">
+    <meta name="theme-color" content="#1E3A5F">
+    <link rel="icon" href="img/Logo.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link
+      rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet">
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/components.js"></script>
+  </head>
+  <body>
+    <main>
+      <section class="phero"><div class="blob a"></div><div class="wrap">
+          <div data-a="left"><span class="badge"><i
+                class="fa-solid fa-laptop-code"></i> Our
+              services</span><h1>Websites, apps and cloud hosting<span
+                class="type code"
+                data-type="&lt;html&gt; static sites|python manage.py run|npm start|docker compose up|sudo certbot --nginx"></span></h1>
+            <p class="lead">Click any service to see the pages, features and
+              technology included.</p></div>
+          <div class="visual" data-a="right"><div class="frame"><img
+                data-parallax="-0.05" src="img/hero.avif"
+                alt="Building websites and apps" onerror="this.remove()"></div>
+            <i class="fa-brands fa-node-js chip"
+              style="--d:7s;top:-16px;right:10%"></i><i
+              class="fa-brands fa-wordpress chip"
+              style="--d:9s;bottom:-16px;left:10%"></i></div></div></section>
+      <section><div class="wrap"><div class="grid" id="svcGrid"
+            style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))"></div></div></section>
+      <section class="alt"><div class="wrap"><div class="sh"
+            data-a="up"><span>Our tech stack</span><h2>Tools we build
+              with</h2></div></div><div class="marq"><div
+            id="techRow"></div></div></section>
+      <section><div class="wrap"><div class="sh" data-a="up"><span>How it
+              works</span><h2>From idea to launch</h2></div><div class="grid"
+            id="steps"></div>
+          <div class="cta" data-a="zoom" style="margin-top:3.5rem"><h2>Ready to
+              start?</h2><p>Send us a message and we will reply within 24
+              hours.</p><a href="contact.html" class="btn">Get a
+              quote</a></div></div></section>
+    </main>
+    <dialog class="modal" id="svcModal" aria-labelledby="mTitle"><button
+        class="mx" data-close aria-label="Close"><i
+          class="fa-solid fa-xmark"></i></button>
+      <div class="mgrid">
+        <aside class="mside"><img id="mImg" src alt
+            onerror="this.remove()"><span class="tag" id="mTag"></span><h3
+            id="mTitle"></h3><p id="mSum"></p><div class="chips"
+            id="mTech"></div>
+          <div class="mnav"><button data-nav="-1"
+              aria-label="Previous service"><i
+                class="fa-solid fa-chevron-left"></i></button><button
+              data-nav="1" aria-label="Next service"><i
+                class="fa-solid fa-chevron-right"></i></button><span
+              id="mCount"></span></div></aside>
+        <div class="mmain"><h4 id="mPT"></h4><ul class="pl"
+            id="mPages"></ul><div id="mPerkBox"><h4>Also included</h4><ul
+              class="pk" id="mPerks"></ul></div></div>
+      </div>
+      <div class="mbar"><small><i class="fa-solid fa-clock"></i>Free quote. We
+          reply within 24 hours.</small><div class="row"><button class="btn out"
+            data-close>Close</button><a class="btn" id="mQuote"
+            href="contact.html"><i class="fa-solid fa-paper-plane"></i> Request
+            a quote</a></div></div></dialog>
+    <div id="site-footer"></div>
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/services.js"></script>
+  </body></html>
