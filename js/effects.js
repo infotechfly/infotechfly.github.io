@@ -8,7 +8,7 @@
       'Welcome to Info Tech Fly! We build websites, apps and cloud setups.',
       'These are our services. Tap any card to see what is included.',
       'Who we are: simple, fast and secure by default.',
-      'Tell us about your project and we will reply within 24 hours.'
+      'Chat with our bot or use the contact form. We reply within 24 hours.'
     ],
     about: [
       'About us: we help people and businesses work smarter.',
@@ -54,17 +54,28 @@
   </g>`;
   const GUIDE_SVG = `<svg viewBox="0 0 160 140" id="dev" role="button" tabindex="0" aria-label="Fly developer: click to mute or unmute">${DEV}</svg>`;
 
-  /* loader scene: servers, wires with data packets, developer */
+  /* loader scene: server racks, glowing wires with data packets, developer */
   const scene = () => {
-    let o = '';
+    let o = `<defs>
+      <linearGradient id="svg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1f3d63"/><stop offset="1" stop-color="#0f2239"/></linearGradient>
+      <filter id="gl" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>`;
     for (let i = 0; i < 3; i++) for (let sd = 0; sd < 2; sd++) {
-      const y = 70 + i * 38, wy = y + 17, x = sd ? 342 : 14, sx = sd ? 342 : 78, ex = sd ? 260 : 160, c = sd ? 305 : 115;
+      const y = 70 + i * 38, wy = y + 17, x = sd ? 342 : 14, sx = sd ? 342 : 78, ex = sd ? 262 : 158, c = sd ? 305 : 115;
       const p = `M${sx} ${wy}C${c} ${wy},${c} 205,${ex} 205`;
-      o += `<path class="wire" d="${p}" fill="none" stroke="#5bb5d6" stroke-width="2"/>
-        <circle r="3.5" fill="#87ceeb"><animateMotion dur="${1.6 + i * .3}s" repeatCount="indefinite" path="${p}"/></circle>
-        <rect x="${x}" y="${y}" width="64" height="34" rx="6" fill="#152840" stroke="#5bb5d6" stroke-width="2"/>
-        <circle class="led" cx="${x + 14}" cy="${wy}" r="3.5" fill="#10b981" style="animation-delay:-${i * .4 + sd * .2}s"/>
-        <rect x="${x + 26}" y="${wy - 3}" width="28" height="6" rx="3" fill="#24405f"/>`;
+      const dur = (1.7 + i * .3).toFixed(1), dl = (i * .4 + sd * .2).toFixed(1);
+      o += `<path d="${p}" fill="none" stroke="#24405f" stroke-width="4" stroke-linecap="round"/>
+        <path class="wire" d="${p}" fill="none" stroke="#5bb5d6" stroke-width="1.8" stroke-linecap="round"/>
+        <circle r="3.2" fill="#87ceeb" filter="url(#gl)"><animateMotion dur="${dur}s" repeatCount="indefinite" path="${p}"/></circle>
+        <circle r="2.4" fill="#10b981" filter="url(#gl)"><animateMotion dur="${dur}s" begin="-${(dur / 2).toFixed(2)}s" repeatCount="indefinite" path="${p}"/></circle>
+        <circle cx="${sx}" cy="${wy}" r="3.2" fill="#5bb5d6"/><circle cx="${ex}" cy="205" r="3.6" fill="#5bb5d6" filter="url(#gl)"/>
+        <rect x="${x}" y="${y}" width="64" height="34" rx="6" fill="url(#svg1)" stroke="#5bb5d6" stroke-width="1.6"/>
+        <rect x="${x + 8}" y="${y + 8}" width="34" height="4" rx="2" fill="#24405f"/>
+        <rect class="sv-bar" x="${x + 8}" y="${y + 8}" width="34" height="4" rx="2" fill="#87ceeb" style="animation-delay:-${dl}s"/>
+        <rect x="${x + 8}" y="${y + 21}" width="34" height="4" rx="2" fill="#24405f"/>
+        <rect class="sv-bar" x="${x + 8}" y="${y + 21}" width="34" height="4" rx="2" fill="#10b981" style="animation-delay:-${(+dl + .6).toFixed(1)}s"/>
+        <circle class="led" cx="${x + 52}" cy="${y + 10}" r="2.6" fill="#10b981" style="animation-delay:-${dl}s"/>
+        <circle class="led" cx="${x + 52}" cy="${y + 24}" r="2.6" fill="#87ceeb" style="animation-delay:-${(+dl + .5).toFixed(1)}s"/>`;
     }
     return `<svg viewBox="0 0 420 240" aria-hidden="true">${o}<rect x="100" y="228" width="220" height="6" rx="3" fill="#24405f"/><g transform="translate(130 90)">${DEV}</g></svg>`;
   };
@@ -79,10 +90,12 @@
   const secs = () => [...document.querySelectorAll('main > section, .ftr')]
     .filter(el => !el.querySelector('.grid, .tl'));
 
-  /* welcome loader shows only on the visitor's FIRST visit */
+  /* welcome loader shows ONE time per browser tab.
+     sessionStorage is per tab: a new tab (or a closed and reopened tab) shows it again,
+     moving between pages or refreshing inside the same tab does not. */
   const KEY = 'itf_welcomed';
   let seen = false;
-  try { seen = localStorage.getItem(KEY) === '1'; } catch (e) {}
+  try { seen = sessionStorage.getItem(KEY) === '1'; } catch (e) {}
 
   document.addEventListener('DOMContentLoaded', () => {
     const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -154,10 +167,10 @@
       secs().forEach(el => io.observe(el));
     };
 
-    /* loader: logo, developer working with servers, "Welcome", then the site opens (every visit / refresh) */
+    /* loader: logo, developer working with servers, "Welcome", then the site opens (once per tab) */
     const start = () => { ready = true; say(HELLO[page] || HELLO.index); initScroll(); };
-    if (reduce || seen) { start(); return; }   /* returning visitor: open the page directly */
-    try { localStorage.setItem(KEY, '1'); } catch (e) {}
+    if (reduce || seen) { start(); return; }   /* same tab, already welcomed: open the page directly */
+    try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
     body.insertAdjacentHTML('afterbegin', LOADER);
     body.style.overflow = 'hidden';
     const L = $('#loader'), sy = $('#lsay'), sc = $('#lsc');

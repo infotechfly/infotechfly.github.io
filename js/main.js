@@ -158,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
     t.textContent = m;
     t.className = "on" + (bad ? " bad" : "");
     clearTimeout(tt);
-    tt = setTimeout(() => (t.className = ""), 3500);
+    tt = setTimeout(() => (t.className = ""), 3800);
   };
 
   // Phone is valid if it has 7 to 15 digits. +, spaces, ( ) and - are all allowed.
@@ -167,13 +167,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return n >= 7 && n <= 15;
   };
   const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const SEND_HTML = '<i class="fa-solid fa-paper-plane"></i> Send message';
-  const BUSY_HTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
 
+  /* ---- contact form: two ways to send ----
+     WhatsApp: saves to Google Sheet AND opens WhatsApp with the message
+     Team:     saves to Google Sheet only (nothing goes to WhatsApp) */
   $$("form.lead").forEach((form) => {
     const wrap = form.closest(".fw");
-    const btn = $("button[type=submit]", form);
+    const btns = $$("button[data-via]", form);
     let opened = Date.now();
+    let busy = false;
 
     // Phone box: allow only + digits spaces ( ) and -
     const ph = form.elements.phone;
@@ -188,12 +190,11 @@ document.addEventListener("DOMContentLoaded", () => {
       form.elements.message.value = `I am interested in: ${service}.\n`;
     }
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      if (btn.disabled) return;
+    const send = async (via, btn) => {
+      if (busy) return;
 
       const d = Object.fromEntries(new FormData(form));
-      if (d.website) return;
+      if (d.website) return; // honeypot
 
       const name = (d.name || "").trim();
       const phone = (d.phone || "").trim();
@@ -213,10 +214,35 @@ document.addEventListener("DOMContentLoaded", () => {
           1,
         );
 
-      btn.disabled = true;
-      btn.innerHTML = BUSY_HTML;
+      const wa = via === "whatsapp";
+      const waNum =
+        (typeof CFG !== "undefined" && CFG.WHATSAPP) || "917225880469";
+      const waText =
+        `Hello Info Tech Fly,\n\n` +
+        `*Name:* ${name}\n*Phone:* ${phone}\n*Email:* ${email}\n\n*Message:*\n${message}`;
+      const waUrl = `https://wa.me/${waNum}?text=${encodeURIComponent(waText)}`;
+
+      // open the WhatsApp tab right now (inside the click) so browsers do not block it
+      let win = null;
+      if (wa) {
+        win = window.open("", "_blank");
+        try {
+          if (win)
+            win.document.write(
+              '<p style="font:16px system-ui;padding:2rem">Opening WhatsApp...</p>',
+            );
+        } catch (e) {}
+      }
+
+      busy = true;
+      btns.forEach((b) => (b.disabled = true));
+      const old = btn.innerHTML;
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sending...';
+
       const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 20000);
+      const timer = setTimeout(() => ctrl.abort(), wa ? 10000 : 20000);
+      let saved = true,
+        errMsg = "";
 
       try {
         const res = await fetch(api, {
@@ -226,6 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
             phone,
             email,
             message,
+            via: wa ? "WhatsApp" : "Team",
             website: "",
             t: Date.now() - opened,
           }),
@@ -234,27 +261,48 @@ document.addEventListener("DOMContentLoaded", () => {
         const out = await res.json();
         if (out.status !== "success")
           throw new Error(out.message || "Could not send. Please try again.");
+      } catch (err) {
+        saved = false;
+        const offline = err.name === "AbortError" || err instanceof TypeError;
+        errMsg = offline
+          ? "Could not send. Please check your connection and try again."
+          : err.message;
+      } finally {
+        clearTimeout(timer);
+      }
+
+      // WhatsApp always opens, so the visitor never loses their message
+      if (wa) {
+        if (win && !win.closed) win.location.href = waUrl;
+        else window.location.href = waUrl;
+      }
+
+      if (saved || wa) {
         if (wrap) {
           wrap.classList.remove("fly");
           void wrap.offsetWidth;
           wrap.classList.add("fly");
         }
-        toast("Thank you! Your message was sent.");
         form.reset();
         opened = Date.now();
-      } catch (err) {
-        const offline = err.name === "AbortError" || err instanceof TypeError;
-        toast(
-          offline
-            ? "Could not send. Please check your connection and try again."
-            : err.message,
-          1,
-        );
-      } finally {
-        clearTimeout(timer);
-        btn.disabled = false;
-        btn.innerHTML = SEND_HTML;
       }
-    });
+
+      if (saved)
+        toast(
+          wa
+            ? "Thank you! Opening WhatsApp..."
+            : "Thank you! Your message was sent to our team.",
+        );
+      else if (wa)
+        toast("WhatsApp opened, but we could not save to our sheet. " + errMsg, 1);
+      else toast(errMsg, 1);
+
+      busy = false;
+      btns.forEach((b) => (b.disabled = false));
+      btn.innerHTML = old;
+    };
+
+    btns.forEach((b) => b.addEventListener("click", () => send(b.dataset.via, b)));
+    form.addEventListener("submit", (e) => e.preventDefault());
   });
 });
