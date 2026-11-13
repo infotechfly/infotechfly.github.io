@@ -2,13 +2,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const $ = s => document.querySelector(s);
   const chip = k => `<span class="tc"><i class="${TECH[k][0]}"></i>${TECH[k][1]}</span>`;
 
-  $('#svcGrid').innerHTML = SERVICES.map(s => `<article class="card svc" id="${s.id}" data-a="up" data-id="${s.id}" tabindex="0" role="button" aria-haspopup="dialog" aria-label="${s.title}: show more details">
+  $('#svcGrid').innerHTML = SERVICES.map(s => `<article class="card svc" id="${s.id}" data-id="${s.id}" tabindex="0" role="button" aria-haspopup="dialog" aria-label="${s.title}: show more details">
     <div class="media"><img src="img/${s.img}" alt="${s.title}" loading="lazy" onerror="this.remove()"><span class="peek"><i class="fa-solid fa-expand"></i></span></div>
     <div class="sb"><span class="tag">${s.tag}</span><h3>${s.title}</h3><p>${s.summary}</p><div class="chips">${s.tech.slice(0, 4).map(chip).join('')}</div>
     <span class="more">Show more details <i class="fa-solid fa-arrow-right"></i></span></div></article>`).join('');
   const items = Object.values(TECH).map(([i, n, u]) => `<div class="card tech"><i class="${i}"></i><h4>${n}</h4><p>${u}</p></div>`).join('');
   $('#techRow').innerHTML = items + items;
-  $('#steps').innerHTML = STEPS.map((s, i) => `<div class="card" data-a="up"><div class="ic">${i + 1}</div><h3>${s[0]}</h3><p>${s[1]}</p></div>`).join('');
+  $('#steps').innerHTML = STEPS.map((s, i) => `<div class="card"><div class="ic">${i + 1}</div><h3>${s[0]}</h3><p>${s[1]}</p></div>`).join('');
+  window.flyCards();
   window.reveal();
 
   if (matchMedia('(hover:hover) and (pointer:fine)').matches && !matchMedia('(prefers-reduced-motion:reduce)').matches)

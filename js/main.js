@@ -43,6 +43,53 @@ document.addEventListener("DOMContentLoaded", () => {
       io.observe(el);
     });
 
+  /* ---- scroll direction + pop-in cards ----
+     scroll down: cards fly in one by one from the LEFT
+     scroll up:   cards fly in one by one from the RIGHT */
+  let lastY = scrollY,
+    dir = 1;
+  addEventListener(
+    "scroll",
+    () => {
+      const y = scrollY;
+      if (Math.abs(y - lastY) > 2) {
+        dir = y > lastY ? 1 : -1;
+        lastY = y;
+      }
+    },
+    { passive: true },
+  );
+  const fio = new IntersectionObserver(
+    (es) => {
+      const ent = es.filter((e) => e.isIntersecting).map((e) => e.target);
+      ent.sort((a, b) => (a.compareDocumentPosition(b) & 4 ? -1 : 1));
+      if (dir < 0) ent.reverse();
+      ent.forEach((el, i) => {
+        el.style.setProperty("--cd", (i * 0.13).toFixed(2) + "s");
+        el.classList.remove("cp-hide", "cp-l", "cp-r");
+        void el.offsetWidth;
+        el.classList.add(dir > 0 ? "cp-l" : "cp-r");
+      });
+      es.filter((e) => !e.isIntersecting).forEach((e) => {
+        e.target.classList.remove("cp-l", "cp-r");
+        e.target.classList.add("cp-hide");
+      });
+    },
+    { threshold: 0.15, rootMargin: "0px 0px -5% 0px" },
+  );
+  const FLY = ".grid > .card, .stats > .stat, .tl > .it";
+  const flown = new WeakSet();
+  window.flyCards = (root = document) => {
+    if (reduce) return;
+    $$(FLY, root).forEach((el) => {
+      if (flown.has(el)) return;
+      flown.add(el);
+      el.removeAttribute("data-a");
+      el.classList.add("cp-hide");
+      fio.observe(el);
+    });
+  };
+
   const home = $("#homeSvc");
   if (home)
     home.innerHTML = SERVICES.slice(0, 3)
@@ -59,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
           `<div class="it card" data-n="${i + 1}" data-a="right"><h3>${s[0]}</h3><p>${s[1]}</p></div>`,
       ).join(""),
     );
+  window.flyCards();
   window.reveal();
 
   $$("[data-type]").forEach((el) => {
