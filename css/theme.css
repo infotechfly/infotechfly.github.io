@@ -2,7 +2,7 @@
 :root{--glass:rgba(255,255,255,.66);--glassb:rgba(91,181,214,.38)}
 [data-theme=dark]{--glass:rgba(255,255,255,.05);--glassb:rgba(135,206,235,.26)}
 
-/* cursor glow (background grid lines removed) */
+/* cursor glow */
 #glow{position:fixed;width:420px;height:420px;margin:-210px 0 0 -210px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--sky) 22%,transparent),transparent 65%);pointer-events:none;z-index:0;left:-999px;top:0}
 
 /* floating glass pill header (centered with margin, no transform, so the mobile drawer can be fixed to the screen) */
@@ -174,12 +174,405 @@ main{overflow-x:clip}
 @keyframes icpop{0%{transform:scale(0) rotate(-30deg);opacity:0}100%{transform:none;opacity:1}}
 @media(prefers-reduced-motion:reduce){.cp-hide{opacity:1}.cp-l,.cp-r,.cp-l .ic,.cp-r .ic{animation:none}}
 
-/* background grid lines (slowly moving), under the floating tech icons */
-.bggrid{position:fixed;inset:0;z-index:0;pointer-events:none;
-  --gl:color-mix(in srgb,var(--sky-d) 16%,transparent);
-  background:linear-gradient(var(--gl) 1px,transparent 1px) 0 0/50px 50px,linear-gradient(90deg,var(--gl) 1px,transparent 1px) 0 0/50px 50px;
-  animation:gridmove 14s linear infinite;
-  -webkit-mask-image:radial-gradient(ellipse at 50% 40%,#000 35%,rgba(0,0,0,.45) 100%);mask-image:radial-gradient(ellipse at 50% 40%,#000 35%,rgba(0,0,0,.45) 100%)}
-[data-theme=dark] .bggrid{--gl:color-mix(in srgb,var(--sky) 14%,transparent)}
-@keyframes gridmove{to{background-position:0 50px,50px 0}}
-@media(prefers-reduced-motion:reduce){.bggrid{animation:none}}
+/* ==========================================================
+   MATTE GLASS (frosted, non-glossy)
+   soft blur + fine grain + calm borders, no shine or neon glow
+   ========================================================== */
+:root{
+  --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .5 0 0 0 0 .55 0 0 0 .2 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --mg:linear-gradient(145deg,rgba(255,255,255,.78),rgba(240,248,253,.58));
+  --mgb:rgba(30,58,95,.10);
+  --mgh:rgba(255,255,255,.65);
+  --mblur:blur(22px) saturate(115%);
+  --msh:0 8px 30px rgba(30,58,95,.10);
+}
+[data-theme=dark]{
+  --mg:linear-gradient(145deg,rgba(255,255,255,.075),rgba(135,206,235,.035));
+  --mgb:rgba(255,255,255,.09);
+  --mgh:rgba(255,255,255,.07);
+  --msh:0 10px 34px rgba(0,0,0,.38);
+}
+
+/* calm static backdrop so the glass has something soft to frost (no icons, no lines) */
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(520px 420px at 12% 18%,color-mix(in srgb,var(--sky) 26%,transparent),transparent 70%),
+    radial-gradient(560px 460px at 88% 42%,color-mix(in srgb,var(--sky-d) 20%,transparent),transparent 70%),
+    radial-gradient(520px 420px at 30% 92%,color-mix(in srgb,var(--sky) 18%,transparent),transparent 70%)}
+
+/* the glass surfaces */
+.card,.stat,.hdr,.tick,.lw-tabs,#bub,.ib,.btn.out,.badge,
+body .cbot{
+  background:var(--noise),var(--mg);
+  -webkit-backdrop-filter:var(--mblur);backdrop-filter:var(--mblur);
+  border-color:var(--mgb);
+  box-shadow:var(--msh),inset 0 0 0 1px var(--mgh)}
+.btn.out{box-shadow:inset 0 0 0 1px var(--mgh)}
+.btn.out:hover{background:var(--sky);color:var(--navy)}
+.ib:hover{background:var(--sky);color:var(--navy);box-shadow:var(--msh)}
+
+/* matte = no shine and no neon: soften glows and hover lights */
+.card:hover{border-color:color-mix(in srgb,var(--sky-d) 55%,transparent);box-shadow:0 14px 38px rgba(30,58,95,.16),inset 0 0 0 1px var(--mgh)}
+[data-theme=dark] .card:hover{box-shadow:0 14px 38px rgba(0,0,0,.5),inset 0 0 0 1px var(--mgh)}
+.card .ic{box-shadow:0 6px 14px -4px color-mix(in srgb,var(--sky-d) 55%,transparent)}
+.stat b{text-shadow:none}
+.menu a.on{box-shadow:none}
+.lw-tabs button.on{box-shadow:0 4px 12px -3px color-mix(in srgb,var(--sky-d) 60%,transparent)}
+.ftr{box-shadow:none}
+.btn{box-shadow:0 6px 16px -6px color-mix(in srgb,var(--sky-d) 70%,transparent)}
+#bub{box-shadow:var(--msh)}
+#guide svg{filter:drop-shadow(0 6px 10px rgba(30,58,95,.25))}
+.hero .frame{filter:none}
+#glow{opacity:.55}
+.tick{border-color:var(--mgb)}
+
+/* form fields and chatbot panels, same frosted look */
+.fw input,.fw textarea,body .cbot-f input{background:color-mix(in srgb,var(--bg) 55%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+body .cbot{border:1px solid var(--mgb)}
+body .cbot-log{background:color-mix(in srgb,var(--bg2) 45%,transparent)}
+body .cbot-f{background:color-mix(in srgb,var(--card) 55%,transparent);border-top-color:var(--mgb)}
+body .cbot-m.bot{background:color-mix(in srgb,var(--card) 80%,transparent);border-color:var(--mgb)}
+.tc,.pl li{background:color-mix(in srgb,var(--bg2) 60%,transparent);border-color:var(--mgb)}
+
+/* service popup */
+dialog.modal{background:var(--noise),color-mix(in srgb,var(--card) 90%,transparent);-webkit-backdrop-filter:blur(26px);backdrop-filter:blur(26px);border:1px solid var(--mgb)}
+.mbar{background:color-mix(in srgb,var(--card) 60%,transparent);border-top-color:var(--mgb)}
+dialog.modal::backdrop{background:rgba(11,22,37,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+
+/* mobile: header without blur so the left drawer stays fixed to the screen */
+@media(max-width:900px){
+  .hdr{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--noise),linear-gradient(color-mix(in srgb,var(--bg) 94%,transparent),color-mix(in srgb,var(--bg) 94%,transparent))}
+  .menu{background:var(--noise),var(--card)}
+}
+
+/* ==========================================================
+   LIGHT MODE POLISH
+   Clean cool-white surfaces, deeper blue accent for good contrast,
+   white text on blue buttons and icons. Dark mode is not changed.
+   ========================================================== */
+[data-theme=light]{
+  color-scheme:light;
+  --bg:#f4f8fc;--bg2:#e7f0f9;--card:#ffffff;
+  --tx:#2b3a4d;--hc:#10264a;--mu:#52647a;--bd:#d3e0ec;
+  --sky:#7cc4ea;--sky-d:#1b7db8;
+  --ac1:#2f9fd8;--ac2:#1b72ad;
+  --sh:0 12px 34px -10px rgba(16,38,74,.18),0 2px 6px rgba(16,38,74,.05);
+  --mg:linear-gradient(145deg,#ffffff,#f5f9fd);
+  --mgb:rgba(16,38,74,.12);
+  --mgh:rgba(255,255,255,.95);
+  --msh:0 10px 30px -10px rgba(16,38,74,.20),0 2px 6px rgba(16,38,74,.05);
+}
+[data-theme=light] body{background:linear-gradient(180deg,#f7fafd 0%,#eaf2fa 55%,#f4f8fc 100%) fixed}
+[data-theme=light] body::before{
+  background:
+    radial-gradient(520px 420px at 10% 12%,rgba(79,179,224,.22),transparent 70%),
+    radial-gradient(560px 460px at 92% 40%,rgba(27,114,173,.14),transparent 70%),
+    radial-gradient(520px 420px at 28% 94%,rgba(79,179,224,.16),transparent 70%)}
+[data-theme=light] #glow{opacity:.3}
+[data-theme=light] .alt{background:linear-gradient(180deg,rgba(231,240,249,.85),rgba(222,235,247,.7))}
+[data-theme=light] .hero,[data-theme=light] .phero{background:linear-gradient(160deg,rgba(214,232,246,.65),transparent 70%)}
+[data-theme=light] .blob{opacity:.35}
+
+/* header */
+[data-theme=light] .hdr{background:rgba(255,255,255,.88);border-color:rgba(16,38,74,.12)}
+[data-theme=light] .hdr.scrolled{border-color:rgba(27,114,173,.35);box-shadow:0 12px 30px -10px rgba(16,38,74,.25)}
+[data-theme=light] .menu a{color:var(--hc)}
+[data-theme=light] .menu a:hover:not(.on){color:var(--ac2)}
+[data-theme=light] .menu a.on{background:linear-gradient(135deg,var(--ac1),var(--ac2));color:#fff}
+[data-theme=light] .brand b{color:var(--ac2)}
+[data-theme=light] .tbtn{background:#fff;border-color:var(--bd);color:var(--hc)}
+[data-theme=light] .tbtn:hover{background:var(--ac2);color:#fff}
+
+/* headings and small labels */
+[data-theme=light] .hero h1,[data-theme=light] .phero h1,[data-theme=light] .sh h2{background:linear-gradient(90deg,var(--hc) 40%,#1b86c4);-webkit-background-clip:text;background-clip:text;color:transparent}
+[data-theme=light] .type{color:var(--ac2)}
+[data-theme=light] .type.code{background:var(--navy-d);color:var(--sky)}
+[data-theme=light] .sh span,[data-theme=light] .tag,[data-theme=light] .badge{color:var(--ac2)}
+[data-theme=light] .sh span::before,[data-theme=light] .tag::before{background:var(--ac2);box-shadow:none}
+[data-theme=light] .mside .tag{color:var(--sky)}
+[data-theme=light] .mside .tag::before{background:var(--sky)}
+[data-theme=light] .badge{border-color:rgba(27,114,173,.25)}
+[data-theme=light] .sh p,[data-theme=light] .cc p,[data-theme=light] .pl span,[data-theme=light] .tech p,[data-theme=light] .fw .note{color:var(--mu)}
+
+/* buttons */
+[data-theme=light] .btn{background:linear-gradient(135deg,var(--ac1),var(--ac2));color:#fff;box-shadow:0 10px 22px -10px rgba(27,114,173,.8)}
+[data-theme=light] .btn:hover{box-shadow:0 14px 28px -10px rgba(27,114,173,.9)}
+[data-theme=light] .btn.out{background:#fff;color:var(--ac2);border-color:var(--ac2);box-shadow:0 4px 12px -6px rgba(16,38,74,.25)}
+[data-theme=light] .btn.out:hover{background:linear-gradient(135deg,var(--ac1),var(--ac2));color:#fff}
+[data-theme=light] .cta .btn{background:#fff;color:var(--navy);box-shadow:0 10px 24px -10px rgba(0,0,0,.5)}
+[data-theme=light] .cta .btn:hover{background:var(--sky)}
+
+/* cards, icons, stats */
+[data-theme=light] .card:hover{border-color:rgba(27,114,173,.5);box-shadow:0 18px 40px -12px rgba(16,38,74,.28),inset 0 0 0 1px #fff}
+[data-theme=light] .card .ic,[data-theme=light] .pl li>i{background:linear-gradient(135deg,var(--ac1),var(--ac2));color:#fff;box-shadow:0 8px 16px -6px rgba(27,114,173,.6)}
+[data-theme=light] .card:not(.it):not(.svc):not(.tech)::before{border-color:var(--ac2);opacity:.55}
+[data-theme=light] .stat b{color:var(--ac2)}
+[data-theme=light] .tech i,[data-theme=light] .tc i,[data-theme=light] .chip,[data-theme=light] .env{color:var(--ac2)}
+[data-theme=light] .tc,[data-theme=light] .pl li{background:#f1f7fc;border-color:var(--bd)}
+[data-theme=light] .mside .tc{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.3);color:#fff}
+[data-theme=light] .mside .tc i{color:var(--sky)}
+[data-theme=light] .more{color:var(--ac2)}
+[data-theme=light] .tick div{color:var(--ac2)}
+[data-theme=light] .tick{background:rgba(255,255,255,.8)}
+[data-theme=light] .tl i{background:linear-gradient(var(--ac1),var(--ac2))}
+[data-theme=light] .tl .it::before{background:linear-gradient(135deg,var(--ac1),var(--ac2));color:#fff}
+[data-theme=light] .frame{border-color:#fff;box-shadow:0 22px 50px -18px rgba(16,38,74,.4)}
+[data-theme=light] .hero .frame{border:4px solid transparent}
+
+/* forms, tabs, chatbot */
+[data-theme=light] .fw input,[data-theme=light] .fw textarea,[data-theme=light] body .cbot-f input{background:#fff;border-color:#c5d5e5}
+[data-theme=light] input:focus,[data-theme=light] textarea:focus{border-color:var(--ac2);box-shadow:0 0 0 4px rgba(47,159,216,.22)}
+[data-theme=light] .lw-tabs{background:#e9f1f9}
+[data-theme=light] .lw-tabs button{color:var(--hc)}
+[data-theme=light] .lw-tabs button.on{background:linear-gradient(135deg,var(--ac1),var(--ac2));color:#fff;box-shadow:0 6px 14px -5px rgba(27,114,173,.7)}
+[data-theme=light] .act.team{background:linear-gradient(135deg,var(--ac1),var(--ac2));color:#fff;box-shadow:0 10px 22px -8px rgba(27,114,173,.7),inset 0 1px 0 rgba(255,255,255,.35)}
+[data-theme=light] .act.team .ico{background:rgba(255,255,255,.22)}
+[data-theme=light] body .cbot-log{background:#eef4fa}
+[data-theme=light] body .cbot-m.bot{background:#fff;border-color:var(--bd);color:var(--tx)}
+[data-theme=light] body .cbot-f{background:#fff}
+[data-theme=light] .cbot-q button{border-color:var(--ac2);color:var(--ac2);background:#fff}
+[data-theme=light] .cbot-q button:hover,[data-theme=light] .cbot-q button:focus-visible{background:var(--ac2);color:#fff}
+[data-theme=light] .cbot-m a{color:var(--ac2)}
+
+/* popup */
+[data-theme=light] dialog.modal{background:var(--noise),#fff}
+[data-theme=light] .mbar{background:#f6fafd}
+[data-theme=light] .mx{background:#fff}
+
+/* footer, guide, top button */
+[data-theme=light] .ftr{border-top-color:var(--ac2)}
+[data-theme=light] .ftr .brand b,[data-theme=light] .ftr li i{color:var(--sky)}
+[data-theme=light] .ib{color:var(--hc)}
+[data-theme=light] .ib:hover{background:var(--ac2);color:#fff}
+[data-theme=light] #bub{border-color:rgba(27,114,173,.4);color:var(--tx)}
+
+/* mobile drawer in light mode */
+@media(max-width:900px){
+  [data-theme=light] .hdr{background:rgba(255,255,255,.96)}
+  [data-theme=light] .menu{background:#fff;box-shadow:12px 0 40px rgba(16,38,74,.22)}
+  [data-theme=light] .mclose:hover{background:var(--ac2);color:#fff}
+}
+
+/* DARK MODE readability: calm the animated background behind the main headings and text */
+[data-theme=dark] .hero,
+[data-theme=dark] .phero{background:linear-gradient(160deg,color-mix(in srgb,var(--bg) 86%,transparent),color-mix(in srgb,var(--bg) 66%,transparent))}
+[data-theme=dark] .alt{background:color-mix(in srgb,var(--bg2) 82%,transparent)}
+[data-theme=dark] .sh p,[data-theme=dark] .lead,[data-theme=dark] .split p{color:#d3e0ee}
+
+/* "Read more" pill button: gradient, arrow badge that slides, soft lift on hover */
+[data-theme] .btn.go{
+  gap:1rem;padding:.55rem .55rem .55rem 1.6rem;font-weight:600;letter-spacing:.2px;color:#fff;
+  background:linear-gradient(135deg,#1e3a5f 0%,#2a7fae 55%,#5bb5d6 100%);background-size:180% 100%;background-position:0 0;
+  border:1px solid color-mix(in srgb,#fff 22%,transparent);
+  box-shadow:0 14px 28px -12px rgba(27,114,173,.85),inset 0 1px 0 rgba(255,255,255,.28);
+  transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s,background-position .5s}
+[data-theme] .btn.go i{
+  display:grid;place-items:center;width:2.3rem;height:2.3rem;border-radius:50%;flex:none;
+  background:#fff;color:#1e3a5f;font-size:.85rem;
+  box-shadow:0 4px 12px -4px rgba(0,0,0,.35);
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),background .3s,color .3s}
+[data-theme] .btn.go:hover{
+  transform:translateY(-3px);background-position:100% 0;color:#fff;
+  box-shadow:0 20px 34px -12px rgba(27,114,173,.95),0 0 0 4px color-mix(in srgb,var(--sky) 28%,transparent),inset 0 1px 0 rgba(255,255,255,.3)}
+[data-theme] .btn.go:hover i{transform:translateX(3px) rotate(-45deg);background:var(--sky);color:#0f2239}
+[data-theme] .btn.go:active{transform:translateY(-1px) scale(.98)}
+[data-theme=dark] .btn.go{border-color:color-mix(in srgb,var(--sky) 40%,transparent)}
+@media(max-width:480px){[data-theme] .btn.go{width:100%;justify-content:space-between}}
+
+/* phone: when the menu drawer is open, hide the floating developer guide and back-to-top button */
+html.menu-open #guide,
+html.menu-open .ib,
+html.menu-open #bub{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+#guide,.ib{transition:opacity .25s,visibility .25s}
+
+/* =====================================================================
+   BUTTON SYSTEM: one clean look for every button on the site
+   primary pill (gradient + shine + lift), outline pill, round icon buttons,
+   chips, tabs, chat send, close / prev / next, social icons, back-to-top
+   ===================================================================== */
+
+/* primary button */
+[data-theme] .btn{
+  padding:.82rem 1.7rem;border-radius:99px;font-weight:600;letter-spacing:.2px;color:#fff;
+  background:linear-gradient(135deg,#1e3a5f 0%,#2a7fae 55%,#5bb5d6 100%);background-size:180% 100%;background-position:0 0;
+  border:1px solid rgba(255,255,255,.22);
+  box-shadow:0 12px 24px -12px rgba(27,114,173,.85),inset 0 1px 0 rgba(255,255,255,.28);
+  transition:transform .3s cubic-bezier(.2,.8,.2,1),box-shadow .3s,background-position .5s,color .25s,border-color .25s;
+  -webkit-tap-highlight-color:transparent}
+[data-theme] .btn:hover{
+  transform:translateY(-3px);background-position:100% 0;color:#fff;
+  box-shadow:0 18px 30px -12px rgba(27,114,173,.95),0 0 0 4px color-mix(in srgb,var(--sky) 24%,transparent),inset 0 1px 0 rgba(255,255,255,.3)}
+[data-theme] .btn:active{transform:translateY(-1px) scale(.97)}
+[data-theme] .btn:focus-visible{outline:3px solid color-mix(in srgb,var(--sky) 80%,transparent);outline-offset:3px}
+[data-theme] .btn i{transition:transform .3s}
+[data-theme] .btn:hover i{transform:translateX(3px)}
+[data-theme] .btn:disabled{opacity:.6;transform:none;box-shadow:none;cursor:wait}
+
+/* outline button */
+[data-theme] .btn.out{
+  background:color-mix(in srgb,var(--card) 78%,transparent);color:var(--hc);
+  border:1.5px solid var(--sky-d);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  box-shadow:0 8px 18px -12px rgba(16,38,74,.45)}
+[data-theme] .btn.out:hover,
+[data-theme=light] .btn.out:hover{
+  background:linear-gradient(135deg,#1e3a5f 0%,#2a7fae 55%,#5bb5d6 100%);background-size:180% 100%;background-position:100% 0;
+  color:#fff;border-color:transparent}
+
+/* call-to-action band: white pill on the coloured band */
+[data-theme] .cta .btn,
+[data-theme=light] .cta .btn{
+  background:#fff;color:#1e3a5f;border-color:transparent;
+  box-shadow:0 14px 28px -12px rgba(0,0,0,.55)}
+[data-theme] .cta .btn:hover,
+[data-theme=light] .cta .btn:hover{background:var(--sky);color:#0f2239;box-shadow:0 18px 32px -12px rgba(0,0,0,.6),0 0 0 4px rgba(255,255,255,.25)}
+
+/* header "Get Started" a little smaller */
+.hdr .hbtn,.mob-cta{font-size:.9rem}
+
+/* round icon buttons: theme switch, close, previous / next, back to top */
+[data-theme] .tbtn{
+  border:1px solid color-mix(in srgb,var(--sky-d) 50%,transparent);
+  background:color-mix(in srgb,var(--card) 85%,transparent);color:var(--hc);
+  box-shadow:0 6px 16px -8px rgba(16,38,74,.5),inset 0 1px 0 rgba(255,255,255,.25);
+  transition:transform .4s cubic-bezier(.2,.8,.2,1),background .3s,box-shadow .3s}
+[data-theme=light] .tbtn .fa-moon{color:#2a5d9f}
+[data-theme=dark] .tbtn .fa-sun{color:#ffd166}
+[data-theme] .tbtn:hover{
+  transform:rotate(20deg) scale(1.08);
+  background:linear-gradient(135deg,#1e3a5f,#2a7fae 60%,#5bb5d6);
+  box-shadow:0 10px 20px -8px rgba(27,114,173,.9),0 0 0 4px color-mix(in srgb,var(--sky) 22%,transparent)}
+[data-theme] .tbtn:hover i{color:#fff}
+
+[data-theme] .mx{
+  border:1px solid color-mix(in srgb,var(--sky-d) 45%,transparent);
+  background:color-mix(in srgb,var(--card) 90%,transparent);
+  box-shadow:0 8px 18px -8px rgba(0,0,0,.45)}
+[data-theme] .mx:hover{background:linear-gradient(135deg,#1e3a5f,#2a7fae 60%,#5bb5d6);color:#fff;transform:rotate(90deg)}
+
+[data-theme] .mnav button{
+  border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.14);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+[data-theme] .mnav button:hover{background:#fff;color:#1e3a5f;transform:scale(1.12)}
+
+[data-theme] .ib{
+  background:linear-gradient(135deg,#1e3a5f,#2a7fae 60%,#5bb5d6);color:#fff;
+  border:1px solid rgba(255,255,255,.25);
+  box-shadow:0 12px 22px -10px rgba(27,114,173,.9),inset 0 1px 0 rgba(255,255,255,.3)}
+[data-theme] .ib:hover{background:linear-gradient(135deg,#1e3a5f,#2a7fae 60%,#5bb5d6);color:#fff;transform:translateY(-4px);
+  box-shadow:0 18px 28px -10px rgba(27,114,173,.95),0 0 0 4px color-mix(in srgb,var(--sky) 24%,transparent)}
+
+/* social icons in the footer */
+[data-theme] .soc a{
+  border:1px solid color-mix(in srgb,var(--sky-d) 45%,transparent);
+  background:color-mix(in srgb,var(--card) 70%,transparent);
+  transition:transform .3s cubic-bezier(.2,.8,.2,1),background .3s,color .3s,box-shadow .3s}
+[data-theme] .soc a:hover,
+[data-theme] .ftr .soc a:hover{
+  transform:translateY(-4px);color:#fff;
+  background:linear-gradient(135deg,#1e3a5f,#2a7fae 60%,#5bb5d6);
+  box-shadow:0 12px 22px -10px rgba(27,114,173,.95),0 0 0 4px color-mix(in srgb,var(--sky) 22%,transparent)}
+
+/* tabs (Chatbot / Contact form) */
+[data-theme] .lw-tabs button{transition:background .3s,color .3s,box-shadow .3s,transform .2s}
+[data-theme] .lw-tabs button:not(.on):hover{color:var(--sky-d);background:color-mix(in srgb,var(--sky) 14%,transparent)}
+[data-theme] .lw-tabs button.on{
+  background:linear-gradient(135deg,#1e3a5f 0%,#2a7fae 60%,#5bb5d6 100%);color:#fff;
+  box-shadow:0 8px 16px -6px rgba(27,114,173,.8),inset 0 1px 0 rgba(255,255,255,.28)}
+[data-theme] .lw-tabs button:active{transform:scale(.97)}
+
+/* contact form: WhatsApp / Team buttons share the same gradient */
+[data-theme] .act.team{
+  background:linear-gradient(135deg,#1e3a5f 0%,#2a7fae 55%,#5bb5d6 100%);color:#fff;
+  box-shadow:0 12px 24px -10px rgba(27,114,173,.85),inset 0 1px 0 rgba(255,255,255,.3)}
+[data-theme] .act.team .ico{background:rgba(255,255,255,.22)}
+
+/* chatbot: send button and quick-reply chips */
+[data-theme] .cbot-f button{
+  background:linear-gradient(135deg,#1e3a5f,#2a7fae 60%,#5bb5d6);color:#fff;
+  box-shadow:0 8px 16px -8px rgba(27,114,173,.9);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1),box-shadow .25s}
+[data-theme] .cbot-f button:hover:not(:disabled){transform:scale(1.1) rotate(-8deg);box-shadow:0 12px 22px -8px rgba(27,114,173,.95),0 0 0 4px color-mix(in srgb,var(--sky) 22%,transparent)}
+[data-theme] .cbot-f button:active:not(:disabled){transform:scale(.94)}
+[data-theme] .cbot-q button{
+  border:1px solid color-mix(in srgb,var(--sky-d) 70%,transparent);border-radius:99px;
+  background:color-mix(in srgb,var(--card) 82%,transparent);color:var(--hc);font-weight:600;
+  transition:transform .25s,background .25s,color .25s,box-shadow .25s}
+[data-theme] .cbot-q button:hover,
+[data-theme] .cbot-q button:focus-visible{
+  background:linear-gradient(135deg,#1e3a5f,#2a7fae 60%,#5bb5d6);color:#fff;border-color:transparent;
+  transform:translateY(-2px);box-shadow:0 8px 16px -8px rgba(27,114,173,.9)}
+
+/* "Show more details" on the service cards becomes a small pill */
+[data-theme] .svc .more{
+  align-self:flex-start;display:inline-flex;align-items:center;gap:.5rem;
+  padding:.42rem 1rem;margin-top:auto;border-radius:99px;font-size:.85rem;font-weight:600;color:var(--hc);
+  background:color-mix(in srgb,var(--sky) 16%,transparent);
+  border:1px solid color-mix(in srgb,var(--sky-d) 50%,transparent);
+  transition:background .3s,color .3s,box-shadow .3s}
+[data-theme] .svc:hover .more,
+[data-theme] .svc:focus-visible .more{
+  background:linear-gradient(135deg,#1e3a5f,#2a7fae 60%,#5bb5d6);color:#fff;border-color:transparent;
+  box-shadow:0 8px 16px -8px rgba(27,114,173,.9)}
+
+@media(prefers-reduced-motion:reduce){
+  [data-theme] .btn,[data-theme] .tbtn,[data-theme] .ib,[data-theme] .soc a,[data-theme] .cbot-q button,[data-theme] .cbot-f button{transition:none}
+  [data-theme] .btn:hover,[data-theme] .ib:hover,[data-theme] .soc a:hover,[data-theme] .tbtn:hover{transform:none}
+}
+
+/* phone menu: "Get Started" button text is always white (light and dark mode) */
+[data-theme] .menu a.btn,
+[data-theme] .menu a.btn:hover,
+[data-theme] .menu a.btn:hover:not(.on),
+[data-theme] .menu a.btn:focus-visible,
+[data-theme] .menu a.btn i{color:#fff}
+
+/* =====================================================================
+   SOCIAL ICONS (footer): brand colours, glass tile, works in light + dark
+   The footer is always dark navy, so icons use bright brand colours and
+   fill with the full brand colour on hover.
+   ===================================================================== */
+[data-theme] .ftr .soc{gap:.75rem}
+[data-theme] .ftr .soc a.sl{
+  --c:#87ceeb;--hi:#fff;--bgc:var(--c);
+  position:relative;width:2.9rem;height:2.9rem;border-radius:14px;font-size:1.15rem;
+  color:var(--c);overflow:hidden;
+  background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.04));
+  border:1px solid rgba(255,255,255,.2);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 8px 16px -10px rgba(0,0,0,.7);
+  transition:transform .3s cubic-bezier(.2,.8,.2,1),background .3s,color .3s,box-shadow .3s,border-color .3s}
+[data-theme] .ftr .soc a.sl i{transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+[data-theme] .ftr .soc a.sl-yt{--c:#ff4d4d}
+[data-theme] .ftr .soc a.sl-ig{--c:#ff6fa5;--bgc:linear-gradient(45deg,#f09433,#e6683c 28%,#dc2743 55%,#bc1888)}
+[data-theme] .ftr .soc a.sl-tg{--c:#3bb4f2}
+[data-theme] .ftr .soc a.sl-in{--c:#58a9ee;--bgc:#0a66c2}
+[data-theme] .ftr .soc a.sl-gh{--c:#f0f6fc;--bgc:#f0f6fc;--hi:#0d1117}
+[data-theme] .ftr .soc a.sl:hover,
+[data-theme] .ftr .soc a.sl:focus-visible{
+  transform:translateY(-5px) scale(1.06);color:var(--hi);background:var(--bgc);border-color:transparent;
+  box-shadow:0 14px 24px -10px var(--c),0 0 0 4px color-mix(in srgb,var(--c) 28%,transparent)}
+[data-theme] .ftr .soc a.sl:hover i{transform:scale(1.12) rotate(-6deg)}
+[data-theme] .ftr .soc a.sl:focus-visible{outline:2px solid #fff;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){
+  [data-theme] .ftr .soc a.sl,[data-theme] .ftr .soc a.sl i{transition:none}
+  [data-theme] .ftr .soc a.sl:hover,[data-theme] .ftr .soc a.sl:hover i{transform:none}
+}
+
+/* footer contact links keep the footer colours */
+.ftr li a[href^="tel:"],.ftr li a[href^="mailto:"]{color:inherit}
+.ftr li a[href^="tel:"]:hover,.ftr li a[href^="mailto:"]:hover{padding-left:0;color:var(--sky)}
+
+/* =====================================================================
+   SEO helpers: visually hidden text for crawlers / screen readers, FAQ
+   ===================================================================== */
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+noscript ul{list-style:none;padding:0;display:grid;gap:.5rem}
+.faq-list{max-width:860px;margin:0 auto;display:grid;gap:.8rem}
+.faq-list details{background:var(--glass);border:1px solid var(--glassb);border-radius:16px;padding:0 1.3rem;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);transition:border-color .3s,box-shadow .3s}
+.faq-list details[open]{border-color:var(--sky-d);box-shadow:0 10px 30px -14px color-mix(in srgb,var(--sky-d) 60%,transparent)}
+.faq-list summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.1rem 0;font-weight:600;color:var(--hc)}
+.faq-list summary::-webkit-details-marker{display:none}
+.faq-list summary::after{content:"\f067";font-family:"Font Awesome 6 Free";font-weight:900;font-size:.8rem;color:var(--sky-d);flex:none;transition:transform .3s}
+.faq-list details[open] summary::after{transform:rotate(45deg)}
+.faq-list summary:focus-visible{outline:2px solid var(--sky-d);outline-offset:4px;border-radius:8px}
+.faq-list details p{padding:0 0 1.2rem;margin:0;color:var(--tx);line-height:1.7}

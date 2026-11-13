@@ -8,6 +8,7 @@
       'Welcome to Info Tech Fly! We build websites, apps and cloud setups.',
       'These are our services. Tap any card to see what is included.',
       'Who we are: simple, fast and secure by default.',
+      'Quick answers to common questions about our services.',
       'Chat with our bot or use the contact form. We reply within 24 hours.'
     ],
     about: [
@@ -141,7 +142,7 @@
       })();
     };
     const say = t => {
-      if (muted || !t || t === last) return;
+      if (muted || !t || t === last || document.documentElement.classList.contains('menu-open')) return;
       last = t; bub.classList.remove('hide');
       if (reduce) bub.textContent = '👨‍💻 ' + t; else type('👨‍💻 ' + t);
     };
