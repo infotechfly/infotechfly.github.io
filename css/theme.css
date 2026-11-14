@@ -576,3 +576,27 @@ noscript ul{list-style:none;padding:0;display:grid;gap:.5rem}
 .faq-list details[open] summary::after{transform:rotate(45deg)}
 .faq-list summary:focus-visible{outline:2px solid var(--sky-d);outline-offset:4px;border-radius:8px}
 .faq-list details p{padding:0 0 1.2rem;margin:0;color:var(--tx);line-height:1.7}
+/* =====================================================================
+   LAPTOP / DESKTOP NAV: logo on the left, links centred, actions right
+   (901px and wider only. The phone drawer is not touched.)
+   ===================================================================== */
+@media (min-width: 901px) {
+  .hdr .wrap {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+  }
+  .hdr .brand {
+    margin: 0;
+    justify-self: start;
+  }
+  .hdr .menu {
+    justify-self: center;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+  .hdr .desk-actions {
+    justify-self: end;
+  }
+}
